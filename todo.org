@@ -1,0 +1,45 @@
+#+title: Potential changes
+#+author: Jesús Gómez <jgomo3@gmail.com>
+* TODO Support including the module in a class
+Extending an object directly could be perceived as a foreign style in
+Ruby. It is more traditional to include modules in classes. I think
+this can be easily supported.
+
+The core of the module is the method `[]`, defined as:
+
+#+begin_ruby
+def [](key)
+  find(_case_struct_default) { |k, _| k === key }&.last
+end
+#+end_ruby
+
+As it stands now, it is required that the class including this module
+implements the method `find`. If it is decided that this is good
+enough, then an update in the README explaining this technique, would
+be all must be done.
+
+Another alternative is to redifine the module as `AsCaseStruct` and
+implement a new class with the old name `CaseStrcut`.
+
+This could be an implementation of such class:
+
+#+begin_ruby
+require 'forwardable'
+
+class CaseStruct
+  include Forewardable
+  include AsCaseStruct
+
+  def_delegator :@hash, :find
+
+  def initialize(hash)
+    @hash = hash
+  end
+end
+#+end_ruby
+
+*update*: The class implemented by simply delegating to ~@hash::find~
+will not have the whole power of an Hash extending the module
+~AsCaseStruct~. Consider creating the class extending ~Hash~.
+
+* TODO Write some rspecs for all the examples in the module API doc.
